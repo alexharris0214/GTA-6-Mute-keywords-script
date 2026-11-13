@@ -1,0 +1,55 @@
+# One word or phrase per line. Lines starting with "# " (hash + space) are
+# comments. Muting is case-insensitive, and muting a word also mutes its
+# hashtag.
+#
+# Any phrase containing "GTA VI" or "GTA 6" is automatically muted in both
+# forms, so "GTA VI ENDING" also adds "GTA 6 ENDING". You only need one.
+
+# Game-specific spoilers
+GTA VI ENDING
+GTA VI ENDINGS
+GTA VI STORY SPOILERS
+GTA VI PLOT TWIST
+GTA VI FINAL MISSION
+GTA VI LAST MISSION
+GTA VI SECRET ENDING
+GTA VI TRUE ENDING
+GTA VI ALTERNATE ENDING
+GTA VI ENDING EXPLAINED
+GTA VI ALL ENDINGS
+GTA VI STORY LEAK
+GTA VI FINAL CUTSCENE
+GTA VI DEATH SCENE
+GTA VI BETRAYAL
+
+# Characters
+JASON DIES
+LUCIA DIES
+JASON DEATH
+LUCIA DEATH
+JASON KILLED
+LUCIA KILLED
+JASON ENDING
+LUCIA ENDING
+JASON BETRAYAL
+LUCIA BETRAYAL
+JASON AND LUCIA ENDING
+
+# General spoiler phrases (these can also hide spoilers for other games/shows)
+FINAL CUTSCENE
+SECRET ENDING
+TRUE ENDING
+ENDING LEAKED
+ENDING EXPLAINED
+DEATH SCENE
+WHO DIES
+ALL ENDINGS
+
+# Extra-cautious: uncomment to hide ALL GTA 6 posts, not just spoilers.
+# GTA VI
+# GTA6
+# GTAVI
+# Grand Theft Auto VI
+# Grand Theft Auto 6
+# Lucia Caminos
+# Jason Duval
