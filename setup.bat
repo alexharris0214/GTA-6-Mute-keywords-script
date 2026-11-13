@@ -16,13 +16,12 @@ if not defined PY (
   exit /b 1
 )
 
-echo == Installing dependencies (this can take a minute) ==
+echo == Installing dependencies ==
 if not exist .venv (
   %PY% -m venv .venv || goto :error
 )
 .venv\Scripts\python -m pip install --quiet --upgrade pip || goto :error
 .venv\Scripts\python -m pip install --quiet -r requirements.txt || goto :error
-.venv\Scripts\python -m playwright install chromium || goto :error
 
 .venv\Scripts\python configure.py
 pause

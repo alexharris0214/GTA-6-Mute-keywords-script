@@ -1,22 +1,25 @@
 # GTA 6 Mute Keywords Script
 
-Avoid GTA 6 spoilers on X (Twitter). This script opens a browser, logs in to your
-account, and adds a list of GTA 6 keywords to your **muted words**. After that,
-posts that mention them stop showing up in your Home timeline, notifications and replies.
+Avoid GTA 6 spoilers on X (Twitter). This script adds a list of GTA 6 spoiler
+keywords to your **muted words**. After that, posts that mention them stop
+showing up in your Home timeline, notifications and replies.
 
-> **Read this first: account risk.** X's [automation rules](https://help.x.com/en/rules-and-policies/x-automation)
-> say that scripting the website, instead of using the official API, can get an
-> account suspended. X's API has no endpoint for muted words, so this tool has to
-> use browser automation. It keeps the risk low: one short run, a visible
-> browser, random pauses, and no posting or scraping. **But use it at your own
-> risk.** If you'd rather not, copy the words from [`keywords.txt`](keywords.txt)
-> into **Settings → Privacy and safety → Mute and block → Muted words** by hand.
+It works in **your normal browser, where you're already logged in**. It moves
+your mouse and keyboard for you (with [PyAutoGUI](https://pyautogui.readthedocs.io/)),
+so there's no password to enter and no automated login for X to block.
+
+> **Account risk.** X's [automation rules](https://help.x.com/en/rules-and-policies/x-automation)
+> discourage scripting the website. This script makes the same few clicks you
+> would, at human speed, on your own settings page, with no login, posting or
+> scraping. That's about as low-risk as automation gets, but **use it at your own
+> risk.** If you'd rather not, add the words from [`keywords.txt`](keywords.txt)
+> by hand under **Settings → Privacy and safety → Mute and block → Muted words**.
 
 ## What muting does (and doesn't do)
 
 - It hides matching posts from your **Home timeline**, **notifications** and **replies**.
 - It's case-insensitive, and muting `GTA6` also mutes `#GTA6`.
-- **Muted posts still appear in Search, trending lists and in DMs.** Avoid those until you've played.
+- **Muted posts still appear in Search, trending lists and DMs.** Avoid those until you've played.
 - Notifications you turned on for specific accounts ignore muted words.
 
 ## Quick start
@@ -25,9 +28,7 @@ You need **Python 3.9 or newer** ([download](https://www.python.org/downloads/);
 on Windows, tick **"Add python.exe to PATH"** in the installer) and **Git**
 (or use **Code → Download ZIP** on GitHub and unzip it).
 
-The setup script does everything: it creates a Python environment, installs the
-dependencies and Chromium, asks how you want to log in, writes your `.env`, shows
-the keywords, and offers to run the script.
+**Before you start:** log in to X in your normal browser.
 
 ### Mac
 
@@ -39,7 +40,9 @@ cd GTA-6-Mute-keywords-script
 bash setup.sh
 ```
 
-To run it again later:
+The first time, macOS has to let your terminal control the mouse. The script
+opens **System Settings → Privacy & Security → Accessibility** for you: turn on
+your terminal app (Terminal, iTerm, VS Code...), quit and reopen the terminal, then run:
 
 ```bash
 .venv/bin/python mute_keywords.py
@@ -62,31 +65,41 @@ To run it again later:
 .venv\Scripts\python mute_keywords.py
 ```
 
-### What setup asks you
+## What happens when it runs
 
-1. **How to log in:** by hand in the browser (recommended, nothing is saved), or
-   save your username and password in `.env`. The password is typed hidden.
-2. **Authenticator key (optional):** only if you chose to save your password and
-   want the script to type 2FA codes for you.
-3. **How long mutes last:** `30d` (default), `7d`, `24h` or `forever` ("Until you unmute the word" on X).
-4. **Dry run, then run now?** You can stop here and run it later.
+**First run: about 30 seconds of your help.**
 
-To change your answers later, run `.venv/bin/python configure.py` (Mac) or
-`.venv\Scripts\python configure.py` (Windows).
+1. X's "add muted word" page opens in your browser. Arrange the windows so you
+   can see the browser **and** the terminal, then press Enter in the terminal.
+2. The terminal asks you to point at 4 spots, one at a time: the **address
+   bar**, the **word box**, the **30 days** option and the **Save** button.
+   Hover over each one; it's captured after a 5-second countdown.
+3. The script fills in the first keyword and asks you to check the page.
+   Make sure **Home timeline** is ticked, **Notifications** is on, and **From
+   anyone** is selected. These are X's defaults, and the script doesn't change them.
+   Press Enter.
+4. **Hands off.** It adds the rest by itself. Then it re-reads your muted
+   words list, retries anything missing, and prints a summary.
 
-## Settings reference
+**Later runs: fully automatic.** The positions are saved in `calibration.json`.
+Words you already have are skipped, so re-running is safe. With a 30-day mute,
+run it again after a month to renew the mutes.
 
-Setup writes `.env` for you. You can also edit it by hand (all optional):
+**Emergency stop:** move the mouse into any corner of the screen.
+
+Don't move or resize the browser window between runs. If you do, or if clicks
+land in the wrong place, run `mute_keywords.py --recalibrate`.
+
+## Settings
+
+Setup writes `.env` for you. You can also edit it by hand:
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `X_USERNAME`, `X_PASSWORD` | blank | Leave blank to log in by hand in the browser (recommended). |
-| `X_TOTP_SECRET` | blank | Your authenticator app's secret key, if you want the script to type 2FA codes. Opt-in: storing it next to your password weakens 2FA. |
-| `MUTE_DURATION` | `30d` | `30d`, `7d`, `24h` or `forever` (X calls it "Until you unmute the word"). These are the only options X offers. |
-| `MUTE_HOME_TIMELINE` | `true` | Mute in the Home timeline. |
-| `MUTE_NOTIFICATIONS` | `true` | Mute in notifications. |
-| `MUTE_FROM` | `anyone` | For notifications: `anyone` or `not_following`. |
-| `DELAY_MIN`, `DELAY_MAX` | `2`, `5` | Random seconds between keywords. |
+| `MUTE_DURATION` | `30d` | `30d`, `7d`, `24h` or `forever` (X calls it "Until you unmute the word"). |
+| `PAGE_WAIT` | `4` | Seconds to wait for X pages to load. Raise it on a slow connection. |
+| `DELAY_MIN`, `DELAY_MAX` | `1`, `3` | Random pause between keywords, in seconds. |
+| `KEYWORDS_FILE` | `keywords.txt` | Which keyword list to use. |
 
 Edit [`keywords.txt`](keywords.txt) to add or remove words, one per line.
 Lines starting with `# ` (hash and space) are comments. Any phrase with
@@ -94,42 +107,26 @@ Lines starting with `# ` (hash and space) are comments. Any phrase with
 to write one. The default list targets story spoilers, not GTA 6 news in general.
 Uncomment the lines at the bottom to hide all GTA 6 posts.
 
-## Running the script
+## Commands
 
 Use `.venv/bin/python` on Mac or `.venv\Scripts\python` on Windows:
 
 | Command | What it does |
 |---|---|
-| `mute_keywords.py --dry-run` | Lists what would be muted. No browser. |
-| `mute_keywords.py` | Logs in if needed and adds the keywords. |
-| `mute_keywords.py --login-only` | Just logs in and saves the session. |
-
-The first run opens Chrome:
-
-- **No credentials in `.env`:** log in yourself in that window, including any 2FA.
-  The script waits up to 5 minutes, then carries on.
-- **Credentials in `.env`:** the script fills them in. If X asks for a 2FA or
-  email code, type it in the terminal (or set `X_TOTP_SECRET`). If X shows
-  anything it doesn't recognise, such as a CAPTCHA or a push approval, finish
-  it in the browser and the script continues.
-
-Your session is saved in `.browser-profile/`, so later runs skip the login.
-Running it again is safe: words that are already muted are skipped. With a
-timed `MUTE_DURATION`, run it again to renew the mutes.
-
-## About 2FA
-
-The script **does not get around 2FA**, and it shouldn't. If your account has 2FA,
-you approve each new login yourself, either in the browser or by typing the code.
-Even without 2FA, X often asks for an email code when an account logs in from a
-new browser, so plan to be at the keyboard for the first run.
+| `mute_keywords.py` | Adds the keywords (calibrates on the first run). |
+| `mute_keywords.py --recalibrate` | Picks the 4 screen spots again. |
+| `mute_keywords.py --dry-run` | Lists the keywords. Touches nothing. |
 
 ## Troubleshooting
 
-- **A keyword says FAILED:** X probably changed its page layout. The URLs and
-  selectors are at the top of [`mute_keywords.py`](mute_keywords.py). Failed
-  words are listed at the end so you can add them by hand.
-- **Logged out unexpectedly:** delete `.browser-profile/` and run again.
+- **Nothing happens on a Mac:** the terminal app lacks Accessibility permission.
+  Turn it on, then quit and reopen the terminal.
+- **Clicks land in the wrong place:** run with `--recalibrate`, and keep the
+  browser window where it was.
+- **Keywords show `NOT SAVED`:** the page was probably slow. Set `PAGE_WAIT=6`
+  in `.env` and run again; already-muted words are skipped.
+- **X changed its settings page:** add the missing words by hand. The script
+  lists them at the end.
 
 ## Files
 
@@ -138,4 +135,4 @@ new browser, so plan to be at the keyboard for the first run.
 - `setup.sh` / `setup.bat`: one-step setup for Mac / Windows.
 - `configure.py`: the setup questions (writes `.env`).
 - `.env.example`: settings template (setup copies it to `.env`, which is git-ignored).
-- `RESEARCH.md`: notes on how X muting, login and 2FA work.
+- `RESEARCH.md`: notes on how X muting, login and automation work.

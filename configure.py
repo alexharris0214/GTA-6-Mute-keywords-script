@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Interactive settings for the GTA 6 mute script. Writes .env, then offers to run.
+"""Setup questions for the GTA 6 mute script. Writes .env, then offers to run.
 
-Called by setup.sh (Mac/Linux) and setup.bat (Windows); you can also run it
-directly any time to change your settings:  python configure.py
+Called by setup.sh (Mac/Linux) and setup.bat (Windows). Run it again any time
+to change settings:  python configure.py
 """
 
 from __future__ import annotations
 
-import getpass
 import os
 import re
 import subprocess
@@ -17,7 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 ENV = ROOT / ".env"
 EXAMPLE = ROOT / ".env.example"
-DURATIONS = ("forever", "24h", "7d", "30d")
+DURATIONS = ("30d", "7d", "24h", "forever")
 
 
 def ask(question: str, default: str = "") -> str:
@@ -36,70 +35,41 @@ def yes_no(question: str, default: bool) -> bool:
     return reply.lower().startswith("y")
 
 
-def secret(question: str) -> str:
-    try:
-        return getpass.getpass(f"{question} (hidden): ")
-    except EOFError:
-        return ""
-
-
-def quote(value: str) -> str:
-    """Single-quote a value for .env, escaping backslashes and quotes."""
-    return "'" + value.replace("\\", "\\\\").replace("'", "\\'") + "'"
-
-
 def write_env(values: dict[str, str]) -> None:
     lines = []
     for line in EXAMPLE.read_text(encoding="utf-8").splitlines():
         m = re.match(r"^([A-Z_]+)=", line)
         if m and m.group(1) in values:
-            line = f"{m.group(1)}={quote(values[m.group(1)])}"
+            line = f"{m.group(1)}={values[m.group(1)]}"
         lines.append(line)
     ENV.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    if os.name != "nt":
-        ENV.chmod(0o600)
-
-
-def collect_settings() -> dict[str, str]:
-    values = {"X_USERNAME": "", "X_PASSWORD": "", "X_TOTP_SECRET": ""}
-
-    print("\nHow do you want to log in to X?")
-    print("  1) By hand in the browser window (recommended, nothing is saved to disk)")
-    print("  2) Save my username and password in .env")
-    if ask("Choose 1 or 2", "1") == "2":
-        values["X_USERNAME"] = ask("X username, email or phone")
-        values["X_PASSWORD"] = secret("X password")
-        print("\nIf your account uses an authenticator app for 2FA, the script can type the")
-        print("codes for you using the app's secret key. This is optional and weakens 2FA,")
-        print("because the key would sit next to your password. Otherwise you type codes yourself.")
-        if yes_no("Save an authenticator secret key?", False):
-            values["X_TOTP_SECRET"] = secret("Authenticator secret key").replace(" ", "")
-
-    print(f"\nHow long should the mutes last?  {' | '.join(DURATIONS)}")
-    print("(forever = \"Until you unmute the word\" on X)")
-    duration = ask("Duration", "30d").lower()
-    if duration not in DURATIONS:
-        print("Unknown value, using 30d.")
-        duration = "30d"
-    values["MUTE_DURATION"] = duration
-    return values
 
 
 def main() -> int:
     print("\n== Settings ==")
-    if ENV.exists() and not yes_no(".env already exists. Replace it with new answers?", False):
+    if ENV.exists() and not yes_no(".env already exists. Replace it?", False):
         print("Keeping your existing .env.")
     else:
-        write_env(collect_settings())
+        print(f"How long should the mutes last?  {' | '.join(DURATIONS)}")
+        print('(forever = "Until you unmute the word" on X)')
+        duration = ask("Duration", "30d").lower()
+        if duration not in DURATIONS:
+            print("Unknown value, using 30d.")
+            duration = "30d"
+        write_env({"MUTE_DURATION": duration})
         print("Saved settings to .env.")
 
-    script = [sys.executable, str(ROOT / "mute_keywords.py")]
-    print("\nKeywords to mute are in keywords.txt. Edit it any time.")
-    if yes_no("Show the keywords that will be muted (dry run)?", True):
-        subprocess.call(script + ["--dry-run"])
-    if yes_no("\nRun it now and mute the keywords on X?", False):
-        return subprocess.call(script)
+    print("\nHow it works: the script uses YOUR normal browser (log in to X there first)")
+    print("and moves your mouse and keyboard for you. The first run asks you to point at")
+    print("4 spots on the X page; after that it runs on its own. Don't touch anything while")
+    print("it runs. Emergency stop: move the mouse into a corner of the screen.")
+    if sys.platform == "darwin":
+        print("\nOn a Mac, your terminal app needs Accessibility permission (System Settings >")
+        print("Privacy & Security > Accessibility). The script opens that page if it's missing.")
+
     run_cmd = r".venv\Scripts\python mute_keywords.py" if os.name == "nt" else ".venv/bin/python mute_keywords.py"
+    if yes_no("\nRun it now?", True):
+        return subprocess.call([sys.executable, str(ROOT / "mute_keywords.py")])
     print(f"\nRun it later with:  {run_cmd}")
     return 0
 

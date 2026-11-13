@@ -1,4 +1,5 @@
 .env
+calibration.json
 .browser-profile/
 .venv/
 __pycache__/

@@ -44,7 +44,7 @@ Researched 2026-11-13. Main source: X Help Center, "How to use advanced muting o
   unofficial and fragile, so I don't recommend it.
 - So browser automation is the only practical way to script this.
 
-## Login and 2FA
+## Login and 2FA (Playwright approach, since replaced; see the update at the end)
 
 - If the account has 2FA turned on (authenticator app, SMS, security key or push approval), X asks for it at
   every new login. The script should **not** try to get around it, because 2FA is the account's security.
@@ -86,3 +86,18 @@ Researched 2026-11-13. Main source: X Help Center, "How to use advanced muting o
 - The maximum number of muted words per account. X doesn't publish a limit, so test with the full list.
 - The maximum characters per entry. The help page only says "up to the max character count".
 - Current selectors for the add-muted-word form and its toggles.
+
+## Update: X blocks Playwright logins (2026-11-13)
+
+- A real test run with Playwright's "Chrome for Testing" was refused at login with
+  "We've temporarily limited your login. Please try again later."
+- Disguising the automated browser to get past that (spoofed headers, stealth
+  plugins) was rejected: it evades X's bot protection, and getting caught risks
+  account suspension for everyone who uses the script.
+- New approach: PyAutoGUI drives the user's **normal, already-logged-in browser**
+  with real mouse and keyboard input. There's no automated login.
+  - The user points at 4 spots once (address bar, word box, duration, Save);
+    the positions are saved to `calibration.json`.
+  - The script reads the muted-words list by selecting all of the page text and
+    copying it (via the clipboard), so it can skip existing words and check results.
+  - After each Save it copies the address bar URL to confirm X moved on to the list page.
