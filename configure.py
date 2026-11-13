@@ -76,10 +76,11 @@ def collect_settings() -> dict[str, str]:
             values["X_TOTP_SECRET"] = secret("Authenticator secret key").replace(" ", "")
 
     print(f"\nHow long should the mutes last?  {' | '.join(DURATIONS)}")
-    duration = ask("Duration", "forever").lower()
+    print("(forever = \"Until you unmute the word\" on X)")
+    duration = ask("Duration", "30d").lower()
     if duration not in DURATIONS:
-        print("Unknown value, using forever.")
-        duration = "forever"
+        print("Unknown value, using 30d.")
+        duration = "30d"
     values["MUTE_DURATION"] = duration
     return values
 

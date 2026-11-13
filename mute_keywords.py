@@ -42,7 +42,8 @@ SEL_PRIMARY = '[data-testid="primaryColumn"]'
 SEL_KEYWORD_INPUT = 'input[name="keyword"]'
 
 DURATION_LABELS = {
-    "forever": re.compile(r"forever", re.I),
+    # The website labels "forever" as "Until you unmute the word".
+    "forever": re.compile(r"until you unmute|forever", re.I),
     "24h": re.compile(r"24 hours", re.I),
     "7d": re.compile(r"7 days", re.I),
     "30d": re.compile(r"30 days", re.I),
@@ -77,7 +78,7 @@ def env_bool(name: str, default: bool) -> bool:
 
 def load_config() -> Config:
     load_dotenv(ROOT / ".env")
-    duration = os.getenv("MUTE_DURATION", "forever").strip().lower() or "forever"
+    duration = os.getenv("MUTE_DURATION", "30d").strip().lower() or "30d"
     if duration not in DURATION_LABELS:
         sys.exit(f"MUTE_DURATION must be one of {', '.join(DURATION_LABELS)}, got {duration!r}")
     mute_from = os.getenv("MUTE_FROM", "anyone").strip().lower() or "anyone"
@@ -237,9 +238,16 @@ def current_muted(page) -> set[str]:
 
 
 def set_checkbox(page, label: str, wanted: bool) -> None:
-    box = page.get_by_role("checkbox", name=re.compile(label, re.I))
-    if box.count() and box.first.is_checked() != wanted:
-        box.first.click()
+    """Set a checkbox or toggle switch (Home timeline is a checkbox,
+    Notifications is a switch on the website)."""
+    name = re.compile(label, re.I)
+    for role in ("checkbox", "switch"):
+        box = page.get_by_role(role, name=name)
+        if box.count():
+            if box.first.is_checked() != wanted:
+                box.first.click()
+            return
+    raise RuntimeError(f"couldn't find the '{label}' setting on the page")
 
 
 def pick_radio(page, pattern: re.Pattern) -> None:

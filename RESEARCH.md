@@ -24,7 +24,8 @@ Researched 2026-11-13. Main source: X Help Center, "How to use advanced muting o
 ## Duration (TTL)
 
 - Options: **Forever** (the default), **24 hours**, **7 days**, **30 days**. There are no custom durations.
-- Recommendation: make it configurable and default to `forever`. Spoilers keep circulating for weeks
+- On the website "Forever" is labelled "Until you unmute the word", and Notifications is a toggle switch.
+- Chosen default: `30d` (from the live settings screen), configurable. Spoilers keep circulating for weeks
   after launch, and the user can unmute later.
 - With a timed mute, the script would need to run again to renew it. The script must skip
   words that are already muted, so re-running is safe.

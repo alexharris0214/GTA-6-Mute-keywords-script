@@ -68,7 +68,7 @@ To run it again later:
    save your username and password in `.env`. The password is typed hidden.
 2. **Authenticator key (optional):** only if you chose to save your password and
    want the script to type 2FA codes for you.
-3. **How long mutes last:** `forever`, `24h`, `7d` or `30d`.
+3. **How long mutes last:** `30d` (default), `7d`, `24h` or `forever` ("Until you unmute the word" on X).
 4. **Dry run, then run now?** You can stop here and run it later.
 
 To change your answers later, run `.venv/bin/python configure.py` (Mac) or
@@ -82,7 +82,7 @@ Setup writes `.env` for you. You can also edit it by hand (all optional):
 |---|---|---|
 | `X_USERNAME`, `X_PASSWORD` | blank | Leave blank to log in by hand in the browser (recommended). |
 | `X_TOTP_SECRET` | blank | Your authenticator app's secret key, if you want the script to type 2FA codes. Opt-in: storing it next to your password weakens 2FA. |
-| `MUTE_DURATION` | `forever` | `forever`, `24h`, `7d` or `30d` (the only options X offers). |
+| `MUTE_DURATION` | `30d` | `30d`, `7d`, `24h` or `forever` (X calls it "Until you unmute the word"). These are the only options X offers. |
 | `MUTE_HOME_TIMELINE` | `true` | Mute in the Home timeline. |
 | `MUTE_NOTIFICATIONS` | `true` | Mute in notifications. |
 | `MUTE_FROM` | `anyone` | For notifications: `anyone` or `not_following`. |
